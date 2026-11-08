@@ -5,6 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Unzip project
+        run: unzip -q "*.zip" -d project
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -13,8 +15,11 @@ jobs:
         with:
           gradle-version: 8.7
       - name: Build
-        run: gradle assembleDebug --no-daemon
+        run: |
+          DIR=$(dirname "$(find project -name 'settings.gradle*' | head -n 1)")
+          cd "$DIR"
+          gradle assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: GestureMacro-APK
-          path: app/build/outputs/apk/debug/*.apk
+          path: project/**/build/outputs/apk/debug/*.apk
